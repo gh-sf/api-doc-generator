@@ -4,6 +4,7 @@ namespace AppBundle\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use JsonSerializable;
 
 /**
  * User
@@ -11,7 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(name="user")
  * @ORM\Entity(repositoryClass="AppBundle\Repository\UserRepository")
  */
-class User
+class User implements JsonSerializable
 {
     /**
      * @var int
@@ -165,6 +166,17 @@ class User
     public function removeRole(Role $role)
     {
         $this->roles->removeElement($role);
+    }
+
+    function jsonSerialize()
+    {
+        return [
+            "name" => $this->getName(),
+            "email" => $this->getEmail(),
+            "password" => $this->getPassword(),
+            "roles" => $this->getRoles(),// ? $this->getRoles()->getValues() : null,
+            "id" => $this->getId()
+        ];
     }
 }
 

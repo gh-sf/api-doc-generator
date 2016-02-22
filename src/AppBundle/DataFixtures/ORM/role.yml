@@ -1,4 +1,4 @@
 AppBundle\Entity\Role:
     role{1..3}:
-        name: <name()>
+        name: <randomElement(["SUPER_ADMIN", "ADMIN", "USER"])>
         description: <paragraph()>
