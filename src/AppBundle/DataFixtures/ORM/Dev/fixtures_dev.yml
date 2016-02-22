@@ -1,0 +1,28 @@
+AppBundle\Entity\Category:
+    category1:
+        name: 'category1'
+    category2:
+        name:  'category2'
+
+
+AppBundle\Entity\Product:
+    product1:
+        name: 'product1'
+        description: 'product1 description'
+        price: 100
+        category: '@category1'
+    product2:
+        name: 'product2'
+        description: 'product2 description'
+        price: 150
+        category: '@category2'
+    product3:
+        name: 'product3'
+        description: 'product3 description'
+        price: 50
+        category: '@category1'
+    product4:
+        name: 'product4'
+        description: 'product4 description'
+        price: 250
+        category: '@category2'

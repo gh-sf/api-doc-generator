@@ -97,7 +97,7 @@ class Category
     public function addProduct(Product $product)
     {
         $this->products[] = $product;
-        $product->setCategory($this);
+        //$product->setCategory($this);
 
         return $this;
     }

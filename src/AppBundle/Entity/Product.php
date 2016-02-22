@@ -61,6 +61,7 @@ class Product
 
     /**
      * @ORM\ManyToOne(targetEntity="Category", inversedBy="products" )
+     * @ORM\JoinColumn(name="category_id", referencedColumnName="id")
      */
     private $category;
 
@@ -156,6 +157,7 @@ class Product
     public function setCategory(Category $category = null)
     {
         $this->category = $category;
+        $category->addProduct($this);
 
         return $this;
     }
