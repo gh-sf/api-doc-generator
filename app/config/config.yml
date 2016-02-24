@@ -2,6 +2,7 @@ imports:
     - { resource: parameters.yml }
     - { resource: security.yml }
     - { resource: services.yml }
+    - { resource: services.xml }
 
 # Put parameters here that don't need to change on each machine where the app is deployed
 # http://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
@@ -70,4 +71,12 @@ swiftmailer:
 
 # FOSRestBundle configuration
 fos_rest:
+    routing_loader:
+        default_format: json
     param_fetcher_listener: true
+    view:
+        view_response_listener: force
+        exception_wrapper_handler: AppBundle\Handler\ExceptionWrapperHandler
+
+    exception:
+        enabled: true

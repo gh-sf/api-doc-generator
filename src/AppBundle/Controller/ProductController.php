@@ -7,7 +7,6 @@ use FOS\RestBundle\Controller\Annotations\Put;
 use FOS\RestBundle\Controller\Annotations\RequestParam;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Request\ParamFetcher;
-use Symfony\Component\HttpFoundation\Request;
 
 class ProductController extends FOSRestController
 {
@@ -40,17 +39,7 @@ class ProductController extends FOSRestController
      */
     public function getAction($id)
     {
-        $entity = $this->getDoctrine()
-            ->getRepository('AppBundle:Product')
-            ->find($id);
-
-        if (!$entity) {
-            throw $this->createNotFoundException('product not found');
-        }
-
-        $view = $this->view($entity, 200)
-            ->setTemplateVar('product')
-            ->setFormat('json');
+        $view = $this->get('app.product_manager')->findById($id);
 
         return $this->handleView($view);
     }
