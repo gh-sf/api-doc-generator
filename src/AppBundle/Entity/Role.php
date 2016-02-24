@@ -4,6 +4,7 @@ namespace AppBundle\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use JsonSerializable;
 
 /**
  * Role
@@ -11,7 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(name="role")
  * @ORM\Entity(repositoryClass="AppBundle\Repository\RoleRepository")
  */
-class Role
+class Role implements \JsonSerializable
 {
     /**
      * @var int
@@ -37,7 +38,7 @@ class Role
     private $description;
 
     /**
-     * @ORM\ManyToMany(targetEntity="User", inversedBy="role")
+     * @ORM\ManyToMany(targetEntity="User", inversedBy="roles")
      */
     private $users;
 
@@ -135,5 +136,16 @@ class Role
     {
         $this->users->removeElement($user);
     }
+
+    function jsonSerialize()
+    {
+        return [
+            "id" => $this->getId(),
+            "name" => $this->getName(),
+            "description" => $this->getDescription()
+        ];
+    }
+
+
 }
 

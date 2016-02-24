@@ -5,6 +5,8 @@ namespace AppBundle\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use JsonSerializable;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * User
@@ -12,8 +14,9 @@ use JsonSerializable;
  * @ORM\Table(name="user")
  * @ORM\Entity(repositoryClass="AppBundle\Repository\UserRepository")
  */
-class User implements JsonSerializable
+class User implements \JsonSerializable, UserInterface
 {
+
     /**
      * @var int
      *
@@ -28,7 +31,7 @@ class User implements JsonSerializable
      *
      * @ORM\Column(name="name", type="string", length=255)
      */
-    private $name;
+    private $username;
 
     /**
      * @var string
@@ -45,14 +48,38 @@ class User implements JsonSerializable
     private $password;
 
     /**
-     * @ORM\ManyToMany(targetEntity="Role", mappedBy="user", cascade={"persist"})
+     * @ORM\ManyToMany(targetEntity="Role", mappedBy="users")
      */
     private $roles;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="enabled", type="boolean")
+     */
+    private $enabled;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="salt", type="string", length=255)
+     */
+    protected $salt;
+
+    /**
+     * @var string
+     *
+     * @Assert\NotNull(groups={"registration", "new"})
+     * @Assert\Length(min=6, groups={"registration", "new"})
+     */
+    protected $plainPassword;
 
 
     public function __construct()
     {
         $this->roles = new ArrayCollection();
+        $this->setEnabled(true);
+        $this->setSalt(md5(uniqid()));
     }
 
     /**
@@ -68,13 +95,13 @@ class User implements JsonSerializable
     /**
      * Set name
      *
-     * @param string $name
+     * @param string $username
      *
      * @return User
      */
-    public function setName($name)
+    public function setUserName($username)
     {
-        $this->name = $name;
+        $this->username = $username;
 
         return $this;
     }
@@ -84,9 +111,9 @@ class User implements JsonSerializable
      *
      * @return string
      */
-    public function getName()
+    public function getUserName()
     {
-        return $this->name;
+        return $this->username;
     }
 
     /**
@@ -168,14 +195,119 @@ class User implements JsonSerializable
         $this->roles->removeElement($role);
     }
 
+    /**
+     * @return string
+     */
+    public function __toString() {
+        return (string) $this->getUsername();
+    }
+
+    /*---------------------------------------------------Authentication-------------------------------------------------- */
+
+    /**
+     * Set roles
+     *
+     * @param array $roles
+     * @return User
+     */
+    public function setRoles($roles)
+    {
+        $this->roles[] = $roles;
+
+        return $this;
+    }
+
+    /**
+     * Set salt
+     *
+     * @param string $salt
+     * @return User
+     */
+    public function setSalt($salt)
+    {
+        $this->salt = $salt;
+
+        return $this;
+    }
+
+    /**
+     * Get salt
+     *
+     * @return string
+     */
+    public function getSalt()
+    {
+        return $this->salt;
+    }
+
+    /**
+     * Removes sensitive data from the user.
+     *
+     */
+    public function eraseCredentials()
+    {
+        return null;
+    }
+
+    /**
+     * @param string $plainPassword
+     * @return User
+     */
+    public function setPlainPassword($plainPassword)
+    {
+        $this->plainPassword = $plainPassword;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPlainPassword()
+    {
+        return $this->plainPassword;
+    }
+
+    /**
+     * @param boolean $enabled
+     * @return User
+     */
+    public function setEnabled($enabled)
+    {
+        $this->enabled = $enabled;
+        return $this;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function getEnabled()
+    {
+        return $this->enabled;
+    }
+
+    /**
+     * Checks whether the user is enabled.
+     *
+     * Internally, if this method returns false, the authentication system
+     * will throw a DisabledException and prevent login.
+     *
+     * @return Boolean true if the user is enabled, false otherwise
+     *
+     * @see DisabledException
+     */
+    public function isEnabled()
+    {
+        return $this->getEnabled();
+    }
+
     function jsonSerialize()
     {
         return [
-            "name" => $this->getName(),
+            "id" => $this->getId(),
+            "name" => $this->getUserName(),
             "email" => $this->getEmail(),
             "password" => $this->getPassword(),
-            "roles" => $this->getRoles(),// ? $this->getRoles()->getValues() : null,
-            "id" => $this->getId()
+            "roles" => $this->getRoles()->getValues()
         ];
     }
 }
