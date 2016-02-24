@@ -28,6 +28,7 @@ class Product
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id()
      * @ORM\GeneratedValue(strategy="AUTO")
+     *
      */
     private $id;
 
@@ -38,6 +39,7 @@ class Product
      *
      * @Assert\NotBlank(message="The name should not be empty")
      * @Assert\Length(max="150", maxMessage="max product name length is 150 symbols")
+     *
      */
     private $name;
 
@@ -47,6 +49,7 @@ class Product
      * @ORM\Column(name="description", type="text")
      *
      * @Assert\NotBlank(message="the product description should not be empty")
+     *
      */
     private $description;
 
@@ -56,12 +59,14 @@ class Product
      * @ORM\Column(name="price", type="integer")
      *
      * @Assert\NotBlank(message="the price should not be blank")
+     *
      */
     private $price;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Category", inversedBy="products" )
+     * @ORM\ManyToOne(targetEntity="Category")
      * @ORM\JoinColumn(name="category_id", referencedColumnName="id")
+     *
      */
     private $category;
 
@@ -157,7 +162,6 @@ class Product
     public function setCategory(Category $category = null)
     {
         $this->category = $category;
-        $category->addProduct($this);
 
         return $this;
     }

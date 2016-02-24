@@ -10,6 +10,7 @@ namespace AppBundle\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 
@@ -27,6 +28,8 @@ class Category
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id()
      * @ORM\GeneratedValue(strategy="AUTO")
+     *
+     *
      */
     private $id;
 
@@ -37,21 +40,9 @@ class Category
      *
      * @Assert\NotBlank(message="Category name should not be empty")
      * @Assert\Length(max="150", maxMessage="max category name length is 150 symbols")
+     *
      */
     private $name;
-
-    /**
-     * @ORM\OneToMany(targetEntity="Product", mappedBy="category")
-     */
-    private $products;
-
-    /**
-     * Constructor
-     */
-    public function __construct()
-    {
-        $this->products = new ArrayCollection();
-    }
 
     /**
      * Get id
@@ -87,38 +78,4 @@ class Category
         return $this->name;
     }
 
-    /**
-     * Add product
-     *
-     * @param Product $product
-     *
-     * @return Category
-     */
-    public function addProduct(Product $product)
-    {
-        $this->products[] = $product;
-        //$product->setCategory($this);
-
-        return $this;
-    }
-
-    /**
-     * Remove product
-     *
-     * @param Product $product
-     */
-    public function removeProduct(Product $product)
-    {
-        $this->products->removeElement($product);
-    }
-
-    /**
-     * Get products
-     *
-     * @return \Doctrine\Common\Collections\Collection
-     */
-    public function getProducts()
-    {
-        return $this->products;
-    }
 }
