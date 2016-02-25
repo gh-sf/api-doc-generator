@@ -59,6 +59,7 @@ class Product
      * @ORM\Column(name="price", type="integer")
      *
      * @Assert\NotBlank(message="the price should not be blank")
+     * @Assert\Regex("/^\d+/", message="price should be integer value(in cents)")
      *
      */
     private $price;

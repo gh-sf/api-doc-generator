@@ -2,7 +2,9 @@
 
 namespace AppBundle\Controller;
 
+use FOS\RestBundle\Controller\Annotations\Delete;
 use FOS\RestBundle\Controller\Annotations\Get;
+use FOS\RestBundle\Controller\Annotations\Post;
 use FOS\RestBundle\Controller\Annotations\Put;
 use FOS\RestBundle\Controller\Annotations\RequestParam;
 use FOS\RestBundle\Controller\FOSRestController;
@@ -15,19 +17,9 @@ class ProductController extends FOSRestController
      * @Get("/api/v1/products")
      *
      */
-    public function cgetAction()
+    public function cgetProductAction()
     {
-        $data = $this->getDoctrine()
-            ->getRepository('AppBundle:Product')
-            ->findAll();
-
-        if (!$data) {
-            throw $this->createNotFoundException('data not found');
-        }
-
-        $view = $this->view($data, 200)
-            ->setTemplateVar('products')
-            ->setFormat('json');
+        $view = $this->get('app.product_manager')->findAll();
 
         return $this->handleView($view);
     }
@@ -37,7 +29,7 @@ class ProductController extends FOSRestController
      * @return \Symfony\Component\HttpFoundation\Response
      * @Get("/api/v1/products/{id}")
      */
-    public function getAction($id)
+    public function getProductAction($id)
     {
         $view = $this->get('app.product_manager')->findById($id);
 
@@ -51,41 +43,45 @@ class ProductController extends FOSRestController
      *
      * @RequestParam(name="name", nullable=true, strict=true, description="Product name")
      * @RequestParam(name="description", nullable=true, strict=true, description="Product description")
-     * @RequestParam(name="price", requirements="\d+", nullable=true, strict=true, description="Product price")
+     * @RequestParam(name="price", nullable=true, strict=true, description="Product price")
+     * @RequestParam(name="category", nullable=true, strict=true, description="Product category")
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function putAction($id, ParamFetcher $paramFetcher)
+    public function putProductAction($id, ParamFetcher $paramFetcher)
     {
-        $em = $this->getDoctrine()->getManager();
-        $entity = $em->getRepository('AppBundle:Product')
-            ->find($id);
-
-        if (!$entity) {
-            throw $this->createNotFoundException('product not found');
-        }
-
-        if ($name = $paramFetcher->get('name')) {
-            $entity->setName($name);
-        }
-        if ($description = $paramFetcher->get('description')) {
-            $entity->setDescription($description);
-        }
-        if ($price = $paramFetcher->get('price')) {
-            $entity->setPrice($price);
-        }
-
-        $view = $this->view();
-
-        $errors = $this->get('validator')->validate($entity);
-        if (0 == count($errors)) {
-            $em->flush();
-            $view->setData($entity)
-                ->setStatusCode(200)
-                ->setFormat('json');
-        }
+        $view = $this->get('app.product_manager')->update($id, $paramFetcher);
 
         return $this->handleView($view);
+    }
 
+    /**
+     * @param ParamFetcher $paramFetcher
+     * @Post("/api/v1/products")
+     *
+     * @RequestParam(name="name", nullable=false, strict=true, description="Product name")
+     * @RequestParam(name="description", nullable=false, strict=true, description="Product description")
+     * @RequestParam(name="price", nullable=false, strict=true, description="Product price")
+     * @RequestParam(name="category", nullable=false, strict=true, description="Product category")
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function postProductAction(ParamFetcher $paramFetcher)
+    {
+        $view = $this->get('app.product_manager')->create($paramFetcher);
+
+        return $this->handleView($view);
+    }
+
+    /**
+     * @param $id
+     * @Delete("/api/v1/products/{id}")
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function deleteProductAction($id)
+    {
+        $view = $this->get('app.product_manager')->remove($id);
+
+        return $this->handleView($view);
     }
 }

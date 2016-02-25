@@ -12,4 +12,23 @@ use Doctrine\ORM\EntityRepository;
  */
 class ProductRepository extends EntityRepository
 {
+    public function findOneById($id)
+    {
+        return $this->createQueryBuilder('p')
+            ->select('p, c')
+            ->join('p.category', 'c')
+            ->where('p.id = :id')
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+    public function findAllWithDependencies()
+    {
+        return $this->createQueryBuilder('p')
+            ->select('p, c')
+            ->join('p.category', 'c')
+            ->getQuery()
+            ->getResult();
+    }
 }
