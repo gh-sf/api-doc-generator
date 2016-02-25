@@ -59,10 +59,10 @@ class ProductController extends FOSRestController
      * @param ParamFetcher $paramFetcher
      * @Post("/api/v1/products")
      *
-     * @RequestParam(name="name", nullable=false, strict=true, description="Product name")
-     * @RequestParam(name="description", nullable=false, strict=true, description="Product description")
-     * @RequestParam(name="price", nullable=false, strict=true, description="Product price")
-     * @RequestParam(name="category", nullable=false, strict=true, description="Product category")
+     * @RequestParam(name="name", nullable=true, strict=true, description="Product name")
+     * @RequestParam(name="description", nullable=true, strict=true, description="Product description")
+     * @RequestParam(name="price", nullable=true, strict=true, description="Product price")
+     * @RequestParam(name="category", nullable=true, strict=true, description="Product category")
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
