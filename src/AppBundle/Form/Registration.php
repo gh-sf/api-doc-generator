@@ -11,7 +11,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use AppBundle\Entity\User;
 
-class AddUser extends AbstractType
+class Registration extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {

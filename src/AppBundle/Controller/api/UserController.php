@@ -3,7 +3,7 @@
 namespace AppBundle\Controller\api;
 
 use AppBundle\Entity\Role;
-use AppBundle\Form\AddUser;
+use AppBundle\Form\Registration;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
@@ -52,25 +52,23 @@ class UserController extends Controller
          * */
         $user->addRole($role);
 
-        $form = $this->createForm(AddUser::class, $user, ["method" => "PUT"]);
+        $form = $this->createForm(Registration::class, $user, ["method" => "PUT"]);
 
         $em = $this->getDoctrine()->getManager();
 
+        $form->handleRequest($request);
+        if ($form->isValid()) {
+            $encoder = $this->get('security.encoder_factory')->getEncoder($user);
+            $user->setPassword($encoder->encodePassword( $user->getPlainPassword(), $user->getSalt()));
 
-            $form->handleRequest($request);
-            if ($form->isValid()) {
-                $encoder = $this->get('security.encoder_factory')->getEncoder($user);
-                $user->setPassword($encoder->encodePassword( $user->getPlainPassword(), $user->getSalt()));
+            $em->persist($user);
+            $em->flush();
+            return new JsonResponse($user);
+        }
 
-                $em->persist($user);
-                $em->flush();
-                return new JsonResponse($user);
-            }
-
-        $errors = $form->getErrors(true,true);
-                return new JsonResponse([
-                    'message' => (string) $form->getErrors(true,true)
-                ]);
+        return new JsonResponse([
+            'message' => (string) $form->getErrors(true,true)
+        ]);
 
     }
 
@@ -86,7 +84,7 @@ class UserController extends Controller
 
         $em = $this->getDoctrine()->getManager();
 
-        $form = $this->createForm(AddUser::class, $user);
+        $form = $this->createForm(Registration::class, $user);
 
         $form->handleRequest($request);
 
