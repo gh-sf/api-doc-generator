@@ -199,7 +199,7 @@ class User implements \JsonSerializable, UserInterface
      * @return string
      */
     public function __toString() {
-        return (string) $this->getUsername();
+        return (string) $this->getUserName();
     }
 
     /*---------------------------------------------------Authentication-------------------------------------------------- */

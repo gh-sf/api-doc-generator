@@ -137,6 +137,10 @@ class Role implements \JsonSerializable
         $this->users->removeElement($user);
     }
 
+    public function __toString() {
+        return (string) $this->getName();
+    }
+
     function jsonSerialize()
     {
         return [
