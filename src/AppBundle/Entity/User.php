@@ -28,6 +28,13 @@ class User implements \JsonSerializable, UserInterface
 
     /**
      * @var string
+     * @Assert\NotNull()
+     * @Assert\Length(
+     *      min = 2,
+     *      max = 50,
+     *      minMessage = "Your first name must be at least {{ limit }} characters long",
+     *      maxMessage = "Your first name cannot be longer than {{ limit }} characters"
+     * )
      *
      * @ORM\Column(name="name", type="string", length=255)
      */
@@ -35,6 +42,11 @@ class User implements \JsonSerializable, UserInterface
 
     /**
      * @var string
+     * @Assert\NotNull()
+     * @Assert\Email(
+     *     message = "The email '{{ value }}' is not a valid email.",
+     *     checkMX = true
+     * )
      *
      * @ORM\Column(name="email", type="string", length=255, unique=true)
      */
@@ -42,12 +54,19 @@ class User implements \JsonSerializable, UserInterface
 
     /**
      * @var string
+     * @Assert\NotNull()
+     * @Assert\Length(
+     *      min = 8,
+     *      max = 50,
+     *      minMessage = "Your password must be at least {{ limit }} characters long",
+     *      maxMessage = "Your password cannot be longer than {{ limit }} characters")
      *
      * @ORM\Column(name="password", type="string", length=255)
      */
     private $password;
 
     /**
+     * @Assert\NotNull()
      * @ORM\ManyToMany(targetEntity="Role", mappedBy="users")
      */
     private $roles;
