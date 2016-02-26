@@ -10,11 +10,9 @@ namespace AppBundle\Service;
 
 
 use AppBundle\Entity\Product;
-use AppBundle\Handler\ExceptionWrapperHandler;
 use FOS\RestBundle\Request\ParamFetcher;
 use FOS\RestBundle\View\View;
 use Symfony\Bridge\Doctrine\RegistryInterface;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class ProductManager
@@ -26,7 +24,6 @@ class ProductManager
     {
         $this->doctrine = $doctrine;
         $this->validator = $validator;
-
     }
 
     public function findById($id)
@@ -36,10 +33,12 @@ class ProductManager
             ->findOneById($id);
 
         if (!$entity) {
-            $exception = new NotFoundHttpException("Product with id $id not found");
-            $view = $this->createExceptionView($exception);
 
-            return $view;
+            return $this->createErrorView(
+                'id',
+                $id,
+                "Product with id $id not found"
+            );
         }
         $view = View::create();
         $view->setData($entity)->setStatusCode(200)->setFormat('json');
@@ -54,8 +53,12 @@ class ProductManager
             ->findAllWithDependencies();
 
         if (!$products) {
-            $exception = new NotFoundHttpException('None product was found');
-            $view = $this->createExceptionView($exception);
+
+            $error = ['message' => 'No products found'];
+            $view = View::create();
+            $view->setData($error)
+                ->setStatusCode(400)
+                ->setFormat('json');
 
             return $view;
         }
@@ -63,7 +66,6 @@ class ProductManager
         $view->setData($products)->setStatusCode(200)->setFormat('json');
 
         return $view;
-
     }
 
     public function update($id, ParamFetcher $paramFetcher)
@@ -72,10 +74,12 @@ class ProductManager
             ->findOneById($id);
 
         if (!$entity) {
-            $exception = new NotFoundHttpException("Product with id $id not found");
-            $view = $this->createExceptionView($exception);
 
-            return $view;
+            return $this->createErrorView(
+                'id',
+                $id,
+                "Product with id $id not found"
+            );
         }
         $em = $this->doctrine->getEntityManager();
 
@@ -101,23 +105,15 @@ class ProductManager
                 $entity->setCategory($category);
             } else {
 
-                $categoryError = [
-                    'property' => 'category',
-                    'invalid_value' => $categoryName,
-                    'message' => 'Category not exists',
-                ];
-
-                $view = View::create();
-                $view->setData($categoryError)
-                    ->setStatusCode(400)
-                    ->setFormat('json');
-
-                return $view;
+                return $this->createErrorView(
+                    'category',
+                    $categoryName,
+                    'Category not exists'
+                );
             }
         }
 
         $view = View::create();
-
         $errors = $this->validator->validate($entity);
 
         if (0 == count($errors)) {
@@ -128,19 +124,8 @@ class ProductManager
             return $view;
 
         } else {
-            $count = 0;
-            foreach ($errors as $error) {
-                $errorData[$count]['property'] = $error->getPropertyPath();
-                $errorData[$count]['invalid_value'] = $error->getInvalidValue();
-                $errorData[$count]['message'] = $error->getMessage();
-                $count++;
-            }
 
-            $view->setData($errorData)
-                ->setStatusCode(400)
-                ->setFormat('json');
-
-            return $view;
+            return $this->createValidationErrorsView($errors);
         }
     }
 
@@ -157,18 +142,12 @@ class ProductManager
             ->findOneBy(['name' => $categoryName]);
 
         if (!$category) {
-            $categoryError = [
-                'property' => 'category',
-                'invalid_value' => $categoryName,
-                'message' => 'Category not exists',
-            ];
 
-            $view = View::create();
-            $view->setData($categoryError)
-                ->setStatusCode(400)
-                ->setFormat('json');
-
-            return $view;
+            return $this->createErrorView(
+                'category',
+                $categoryName,
+                'Category not exists'
+            );
         }
 
         $entity->setName(strip_tags($name));
@@ -177,7 +156,6 @@ class ProductManager
         $entity->setCategory($category);
 
         $view = View::create();
-
         $errors = $this->validator->validate($entity);
 
         if (0 == count($errors)) {
@@ -189,22 +167,9 @@ class ProductManager
             return $view;
 
         } else {
-            $count = 0;
-            foreach ($errors as $error) {
-                $errorData[$count]['property'] = $error->getPropertyPath();
-                $errorData[$count]['invalid_value'] = $error->getInvalidValue();
-                $errorData[$count]['message'] = $error->getMessage();
-                $count++;
-            }
 
-            $view->setData($errorData)
-                ->setStatusCode(400)
-                ->setFormat('json');
-
-            return $view;
+            return $this->createValidationErrorsView($errors);
         }
-
-
     }
 
     public function remove($id)
@@ -214,12 +179,12 @@ class ProductManager
             ->findOneById($id);
 
         if (!$entity) {
-            $exception = new NotFoundHttpException("Product with id $id not found");
-            $view = $this->createExceptionView($exception);
-
-            return $view;
+            return $this->createErrorView(
+                'id',
+                $id,
+                "Product with id $id not found"
+            );
         }
-
         $em = $this->doctrine->getManager();
         $em->remove($entity);
         $em->flush();
@@ -232,21 +197,36 @@ class ProductManager
     }
 
 
-    private function createExceptionView($exception, $errors = null)
+    private function createErrorView($property, $invalidValue, $message)
     {
-        $data = array();
-        $data['status_code'] = $exception->getStatusCode();
-        $data['message'] = $exception->getMessage();
-
-        if ($errors) {
-            $data['errors'] = $errors;
-        }
-
-        $handler = new ExceptionWrapperHandler();
-        $array = $handler->wrap($data);
+        $error = [
+            'property' => $property,
+            'invalid_value' => $invalidValue,
+            'message' => $message,
+        ];
 
         $view = View::create();
-        $view->setData($array)->setStatusCode(400)->setFormat('json');
+        $view->setData($error)
+            ->setStatusCode(400)
+            ->setFormat('json');
+
+        return $view;
+    }
+
+    private function createValidationErrorsView($errors)
+    {
+        $view = View::create();
+        foreach ($errors as $error) {
+
+            $errorData[] = array(
+                'property' => $error->getPropertyPath(),
+                'invalid_value' => $error->getInvalidValue(),
+                'message' => $error->getMessage(),
+            );
+        }
+        $view->setData($errorData)
+            ->setStatusCode(400)
+            ->setFormat('json');
 
         return $view;
     }

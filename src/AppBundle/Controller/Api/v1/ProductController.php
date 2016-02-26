@@ -1,6 +1,6 @@
 <?php
 
-namespace AppBundle\Controller;
+namespace AppBundle\Controller\Api\v1;
 
 use FOS\RestBundle\Controller\Annotations\Delete;
 use FOS\RestBundle\Controller\Annotations\Get;
@@ -14,6 +14,7 @@ class ProductController extends FOSRestController
 {
     /**
      * @return \Symfony\Component\HttpFoundation\Response
+     *
      * @Get("/api/v1/products")
      *
      */
@@ -26,7 +27,9 @@ class ProductController extends FOSRestController
 
     /**
      * @param $id
+     *
      * @return \Symfony\Component\HttpFoundation\Response
+     *
      * @Get("/api/v1/products/{id}")
      */
     public function getProductAction($id)
@@ -39,6 +42,7 @@ class ProductController extends FOSRestController
     /**
      * @param $id
      * @param ParamFetcher $paramFetcher
+     *
      * @Put("/api/v1/products/{id}")
      *
      * @RequestParam(name="name", nullable=true, strict=true, description="Product name")
@@ -74,8 +78,12 @@ class ProductController extends FOSRestController
     }
 
     /**
+     * Removes product
+     *
      * @param $id
+     *
      * @Delete("/api/v1/products/{id}")
+     *
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function deleteProductAction($id)
