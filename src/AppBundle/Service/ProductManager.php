@@ -81,7 +81,7 @@ class ProductManager
                 "Product with id $id not found"
             );
         }
-        $em = $this->doctrine->getEntityManager();
+        $em = $this->doctrine->getManager();
 
         if ($name = $paramFetcher->get('name')) {
             $entity->setName($name);
@@ -132,7 +132,7 @@ class ProductManager
     public function create(ParamFetcher $paramFetcher)
     {
         $entity = new Product();
-        $em = $this->doctrine->getEntityManager();
+        $em = $this->doctrine->getManager();
 
         $name = $paramFetcher->get('name');
         $price = $paramFetcher->get('price');
