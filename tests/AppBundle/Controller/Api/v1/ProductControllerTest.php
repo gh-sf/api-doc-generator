@@ -12,10 +12,12 @@ use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\ConsoleOutput;
+use tests\AppBundle\Controller\TestBaseWeb;
 
 
 class ProductControllerTest extends WebTestCase
 {
+
     protected $crawler;
     protected $client = null;
 
@@ -43,6 +45,7 @@ class ProductControllerTest extends WebTestCase
         $application->run($input, new ConsoleOutput());
     }
 
+
     /**
      * @param $expectedCode
      * @param $route
@@ -59,12 +62,7 @@ class ProductControllerTest extends WebTestCase
         $json = $this->client->getResponse()->getContent();
 
         $array = json_decode($json, true);
-
-        $this->assertArrayHasKey('id', $array);
-        $this->assertArrayHasKey('name', $array);
-        $this->assertArrayHasKey('category', $array);
-        $this->assertArrayHasKey('price', $array);
-        $this->assertArrayHasKey('description', $array);
+        $this->assertProductProperties($array);
     }
 
     public function testCgetProduct()
@@ -75,11 +73,8 @@ class ProductControllerTest extends WebTestCase
 
         $this->assertTrue(4 == count($array));
         foreach ($array as $item) {
-            $this->assertArrayHasKey('id', $item);
-            $this->assertArrayHasKey('name', $item);
-            $this->assertArrayHasKey('category', $item);
-            $this->assertArrayHasKey('price', $item);
-            $this->assertArrayHasKey('description', $item);
+
+            $this->assertProductProperties($item);
         }
     }
 
@@ -123,20 +118,30 @@ class ProductControllerTest extends WebTestCase
         ];
     }
 
+    private function assertProductProperties(Array $item)
+    {
+        $this->assertArrayHasKey('id', $item);
+        $this->assertArrayHasKey('name', $item);
+        $this->assertArrayHasKey('category', $item);
+        $this->assertArrayHasKey('price', $item);
+        $this->assertArrayHasKey('description', $item);
+    }
+
     protected function requestTest($expectedStatusCode, $path, $method = 'GET')
     {
-        $client = static::createClient();
+        //$client = $this->client;
+        //$client = static::createClient();
 
-        $crawler = $client->request($method, $path);
+        $crawler = $this->client->request($method, $path);
 
         $this->assertEquals(
             $expectedStatusCode,
-            $client->getResponse()->getStatusCode(),
+            $this->client->getResponse()->getStatusCode(),
             sprintf(
                 'We expected that uri "%s" will return %s status code, but had received %d',
                 $path,
                 $expectedStatusCode,
-                $client->getResponse()->getStatusCode()
+                $this->client->getResponse()->getStatusCode()
             )
         );
 
