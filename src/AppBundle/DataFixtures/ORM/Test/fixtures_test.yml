@@ -3,6 +3,8 @@ AppBundle\Entity\Category:
         name: 'testcategory1'
     testcategory2:
         name: 'testcategory2'
+    testcategory3:
+        name: 'testcategory3'
 
 
 AppBundle\Entity\Product:
