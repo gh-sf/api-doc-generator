@@ -1,0 +1,30 @@
+AppBundle\Entity\Category:
+    testcategory1:
+        name: 'testcategory1'
+    testcategory2:
+        name: 'testcategory2'
+    testcategory3:
+        name: 'testcategory3'
+
+
+AppBundle\Entity\Product:
+    testproduct1:
+        name: 'testproduct1'
+        description: 'testproduct1 description'
+        price: 100
+        category: '@testcategory1'
+    testproduct2:
+        name: 'testproduct2'
+        description: 'testproduct2 description'
+        price: 150
+        category: '@testcategory2'
+    testproduct3:
+        name: 'testproduct3'
+        description: 'testproduct3 description'
+        price: 50
+        category: '@testcategory1'
+    testproduct4:
+        name: 'testproduct4'
+        description: 'testproduct4 description'
+        price: 250
+        category: '@testcategory2'
